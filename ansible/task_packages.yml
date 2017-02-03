@@ -1,5 +1,8 @@
-- name: install epel
-  yum: name=epel-release state=installed
+- name: install repo tools
+  yum: name={{item}} state=installed
+  with_items:
+    - epel-release
+    - yum-utils
 - name: enable extras repo
   command: yum-config-manager --save --setopt=extras.enabled=1
 - name: install ryanbreed repo
@@ -49,12 +52,7 @@
     - python2-pip
     - python-virtualenv
     - NetworkManager
-- name: Install VMWare Guest Tools
-  yum: name=open-vm-tools state=latest
-  when: hvm_vmware
-- name: Install QEMU Guest Agent
-  yum: name=qemu-guest-agent state=latest
-  when: hvm_qemu
+
 - name: remove unnecessary packages
   yum: name={{item}} state=removed
   with_items:
@@ -70,3 +68,11 @@
     -java-1.8.0-openjdk
     -lldpad
     -chrony
+
+- name: Install VMWare Guest Tools
+  yum: name=open-vm-tools state=installed
+  when: hvm_vmware is defined and hvm_vmware
+
+- name: Install QEMU Guest Agent
+  yum: name=qemu-guest-agent state=installed
+  when: hvm_qemu is defined and hvm_qemu

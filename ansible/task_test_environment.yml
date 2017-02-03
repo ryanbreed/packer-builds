@@ -7,13 +7,13 @@
   register: test_cmd_lsmod
 
 - name: set vmware hvm key
-  set_fact: hvm_vmware=True
-  when: test_cmd_lsmod.stdout.find('vmmon') != -1
+  set_fact: hvm_vmware=True hvm_aws=False hvm_qemu=False
+  when: test_cmd_lsmod.stdout is defined and (test_cmd_lsmod.stdout.find('vmmon') != -1)
 
 - name: set qemu hvm key
-  set_fact: hvm_qemu=True
-  when: test_cmd_lsmod.stdout.find('virtio') != -1
+  set_fact: hvm_qemu=True hvm_vmware=False hvm_aws=False
+  when: test_cmd_lsmod.stdout is defined and (test_cmd_lsmod.stdout.find('virtio') != -1)
 
 - name: set aws hvm key
-  set_fact: hvm_aws=True
+  set_fact: hvm_aws=True hvm_qemu=False hvm_vmware=False
   when: (test_stat_ec2.stat.isdir is defined) and (test_stat_ec2.stat.isdir==True)

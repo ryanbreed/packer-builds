@@ -3,9 +3,9 @@
 - name: configure auditd
   template: src=templates/auditd.conf.j2 dest=/etc/audit/auditd.conf mode=0640 owner=root group=root
 - name: configure audit syslog properties
-  template: src=templates/audispd_plugin_syslog.conf dest=/etc/audisp/plugins.d/syslog.conf mode=0640 owner=root group=root
+  template: src=templates/audispd_plugin_syslog.conf.j2 dest=/etc/audisp/plugins.d/syslog.conf mode=0640 owner=root group=root
 - name: configure base audit rules
-  copy: src=auditd/7.3/audit/rules.d/ dest=/etc/audit/rules.d/ mode=0644 owner=root group=root
+  copy: src=auditd/7.3/rules.d/ dest=/etc/audit/rules.d/ mode=0644 owner=root group=root
 - name: cron canary
   cron: minute="*/20" state=present user=sync name=cron-canary job="echo '#!/bin/true' > /var/tmp/canary && chmod +x /var/tmp/canary && /var/tmp/canary && rm -f /var/tmp/canary"
 - name: generate privileged command rules

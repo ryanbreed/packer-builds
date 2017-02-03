@@ -1,6 +1,17 @@
 {
   "builders": [
     {
+      "type":"vmware-vmx",
+      "source_path": "builds/vmware-vmx-base-centos/breed-base-centos.vmx",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "output_directory": "builds/packer-{{user `template`}}-{{.BuilderType}}",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "100s",
+      "vm_name": "{{user `box_basename`}}-{{ user `template` }}"
+    },
+    {
       "type": "qemu",
       "disk_image": true,
       "boot_wait": "10s",
@@ -33,16 +44,16 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "/data/export/boxes/packer_{{.Provider}}-{{user `box_basename`}}-{{user `template`}}.{{.Provider}}.box",
+      "output": "/data/export/boxes/packer_{{.Provider}}-{{user `box_basename`}}-{{user `template`}}.box",
       "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
       "keep_input_artifact": true
     },
     {
+      "only":["qemu"],
       "type":"shell-local",
       "inline": [
         "cp -vf builds/packer-ruby-qemu/stubby-ruby /data/export/images",
-        "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5",
-        "md5sum < /data/export/boxes/stubby-ruby.libvirt.box | sed -e 's/-/stubby-ruby.libvirt.box/' > /data/export/boxes/stubby-ruby.libvirt.box.md5"
+        "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5"
       ]
     }
   ],

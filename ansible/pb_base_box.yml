@@ -9,6 +9,7 @@
     audit_dispatch_q_depth: 20000
   tasks:
     - include: task_test_environment.yml
+    - include: task_repos.yml
     - include: task_packages.yml
     - include: task_rsyslog.yml
     - include: task_auditd.yml

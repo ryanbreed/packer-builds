@@ -1,0 +1,9 @@
+- name: install repo tools
+  yum: name={{item}} state=installed
+  with_items:
+    - epel-release
+    - yum-utils
+- name: enable extras repo
+  command: yum-config-manager --save --setopt=extras.enabled=1
+- name: install repo key
+  command: rpm --import http://yum-repo-ryanbreed.s3-website-us-west-2.amazonaws.com/RPM-GPG-KEY-yum-repo-ryanbreed

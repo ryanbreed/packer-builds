@@ -154,14 +154,14 @@
       "inline":[
         "mv builds/packer-breed-base-centos-qemu/breed-base-centos /data/export/images/",
         "md5sum < /data/export/images/breed-base-centos | sed -e 's/-/breed-base-centos/' > /data/export/images/breed-base-centos.md5",
-        "md5sum < /data/export/boxes/packer_libvirt-centos.box | sed -e 's/-/packer_libvirt-centos.box/' > /data/export/images/packer_libvirt-centos.box.md5"
+        "md5sum < /data/export/boxes/packer_libvirt-centos.box | sed -e 's/-/packer_libvirt-centos.box/' > /data/export/boxes/packer_libvirt-centos.box.md5"
       ]
     },
     {
       "type":"shell-local",
       "only":["vmware-iso"],
       "inline":[
-        "md5sum < /data/export/boxes/packer_vmware-centos.box | sed -e 's/-/packer_vmware-centos.box/' > /data/export/images/packer_vmware-centos.box.md5"
+        "md5sum < /data/export/boxes/packer_vmware-centos.box | sed -e 's/-/packer_vmware-centos.box/' > /data/export/boxes/packer_vmware-centos.box.md5"
       ]
     }
   ],

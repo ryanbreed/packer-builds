@@ -8,8 +8,8 @@
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
       "iso_checksum_type": "md5",
-      "iso_checksum_url": "http://ninja/export/images/breed-centos-7.3-x86_64.md5",
-      "iso_url": "http://ninja/export/images/breed-centos-7.3-x86_64",
+      "iso_checksum_url": "http://ninja/export/images/breed-base-centos.md5",
+      "iso_url": "http://ninja/export/images/breed-base-centos",
       "output_directory": "packer-{{user `template`}}-qemu",
       "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
       "ssh_port": 22,
@@ -23,33 +23,25 @@
     {
       "type":"shell",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
-      "inline": [
-        "nmcli g hostname packer-stubby-ruby",
-        "shutdown -r now"
-      ]
+      "inline": [ "nmcli g hostname packer-stubby-ruby" ]
     },
     {
       "type": "ansible",
-      "playbook_file":"./ansible/ruby.yml",
-      "extra_arguments": [
-        "--become",
-        "--become-method=sudo"
-      ],
-      "pause_before":"10s"
+      "playbook_file":"ansible/pb_ruby.yml"
     }
   ],
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "/data/export/boxes/{{user `box_basename`}}-{{user `template`}}.{{.Provider}}.box",
+      "output": "/data/export/boxes/packer_{{.Provider}}-{{user `box_basename`}}-{{user `template`}}.{{.Provider}}.box",
       "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
       "keep_input_artifact": true
     },
     {
       "type":"shell-local",
       "inline": [
-        "cp -vf packer-ruby-qemu/stubby-ruby /data/export/images",
-        "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5", 
+        "cp -vf builds/packer-ruby-qemu/stubby-ruby /data/export/images",
+        "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5",
         "md5sum < /data/export/boxes/stubby-ruby.libvirt.box | sed -e 's/-/stubby-ruby.libvirt.box/' > /data/export/boxes/stubby-ruby.libvirt.box.md5"
       ]
     }

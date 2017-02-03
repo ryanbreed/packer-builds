@@ -1,0 +1,69 @@
+{
+  "builders": [
+    {
+      "type": "qemu",
+      "disk_image": true,
+      "boot_wait": "10s",
+      "disk_size": "{{user `disk_size`}}",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "iso_checksum_type": "md5",
+      "iso_checksum_url": "http://ninja/export/images/breed-centos-7.3-x86_64.md5",
+      "iso_url": "http://ninja/export/images/breed-centos-7.3-x86_64",
+      "output_directory": "packer-{{user `template`}}-qemu",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
+      "ssh_port": 22,
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "100s",
+      "vm_name": "{{user `box_basename`}}-{{ user `template` }}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type":"shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "inline": [
+        "nmcli g hostname packer-stubby-python",
+        "systemctl restart rsyslog",
+        "systemctl reload auditd",
+        "shutdown -r now"
+      ]
+    },
+    {
+      "type": "ansible",
+      "playbook_file":"ansible/python.yml",
+      "extra_arguments": [
+        "-vvv"
+      ],
+      "pause_before":"10s"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "/data/export/boxes/{{user `box_basename`}}-{{user `template`}}.{{.Provider}}.box",
+      "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
+      "keep_input_artifact": true
+    },
+    {
+      "type":"shell-local",
+      "inline": [
+        "cp -vf packer-python-qemu/stubby-python /data/export/images",
+        "md5sum < /data/export/images/stubby-python | sed -e 's/-/stubby-python/' > /data/export/images/stubby-python.md5"
+      ]
+    }
+  ],
+  "variables": {
+    "build_timestamp": "{{isotime \"20060102150405\"}}",
+    "box_basename": "stubby",
+    "template": "python",
+    "cpus": "2",
+    "disk_size": "10240",
+    "headless": "true",
+    "memory": "1024",
+    "metadata": "floppy/dummy_metadata.json",
+    "no_proxy": "{{env `no_proxy`}}",
+    "version": "0.1.0"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "builders": [
+    {
+      "type": "qemu",
+      "disk_image": true,
+      "boot_wait": "10s",
+      "disk_size": "{{user `disk_size`}}",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "iso_checksum_type": "md5",
+      "iso_checksum_url": "http://ninja/export/images/breed-centos-7.3-x86_64.md5",
+      "iso_url": "http://ninja/export/images/breed-centos-7.3-x86_64",
+      "output_directory": "packer-{{user `template`}}-qemu",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
+      "ssh_port": 22,
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "100s",
+      "vm_name": "{{user `box_basename`}}-{{ user `template` }}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type":"shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "inline": [
+        "nmcli g hostname packer-stubby-ruby",
+        "shutdown -r now"
+      ]
+    },
+    {
+      "type": "ansible",
+      "playbook_file":"./ansible/ruby.yml",
+      "extra_arguments": [
+        "--become",
+        "--become-method=sudo"
+      ],
+      "pause_before":"10s"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "/data/export/boxes/{{user `box_basename`}}-{{user `template`}}.{{.Provider}}.box",
+      "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
+      "keep_input_artifact": true
+    },
+    {
+      "type":"shell-local",
+      "inline": [
+        "cp -vf packer-ruby-qemu/stubby-ruby /data/export/images",
+        "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5", 
+        "md5sum < /data/export/boxes/stubby-ruby.libvirt.box | sed -e 's/-/stubby-ruby.libvirt.box/' > /data/export/boxes/stubby-ruby.libvirt.box.md5"
+      ]
+    }
+  ],
+  "variables": {
+    "build_timestamp": "{{isotime \"20060102150405\"}}",
+    "box_basename": "stubby",
+    "template": "ruby",
+    "cpus": "2",
+    "disk_size": "10240",
+    "headless": "true",
+    "memory": "1024",
+    "metadata": "floppy/dummy_metadata.json",
+    "no_proxy": "{{env `no_proxy`}}",
+    "version": "0.2.0"
+  }
+}

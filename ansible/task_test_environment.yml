@@ -1,0 +1,6 @@
+- name: test ec2 tools
+  stat: path=/opt/ec2
+  register: test_stat_ec2
+- name: list kernel modules
+  command: lsmod
+  register: test_cmd_lsmod

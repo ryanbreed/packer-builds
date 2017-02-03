@@ -1,0 +1,9 @@
+local_events = yes
+write_logs = {{ audit_write_local }}
+log_format = {{ audit_log_format }}
+priority_boost = 4
+disp_qos = lossy
+dispatcher = /sbin/audispd
+name_format = HOSTNAME
+space_left = 100
+admin_space_left = 10

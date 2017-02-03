@@ -1,0 +1,14 @@
+- hosts: all
+  gather_facts: True
+  name: stub runtime for python
+  tasks:
+    - name: ensure app base
+      file: path=/app/python state=directory mode=0755 owner=root group=root mode=0755
+    - name: install app-python user
+      user: name=app-python home="/app/python/home" shell="/bin/bash" createhome=True skeleton=/etc/skel uid=8001
+
+  roles:
+    - role: andrewrothstein.anaconda
+      anaconda_cleanup: True
+      anaconda_parent_dir: /app/python
+      anaconda_python_ver: 3

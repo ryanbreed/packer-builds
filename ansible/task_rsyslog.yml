@@ -1,0 +1,5 @@
+- name: configure rsyslog destination
+  template: src=templates/rsyslog-remote.conf.j2 dest=/etc/rsyslog.d/99-rsyslog-remote.conf mode=0644 owner=root group=root
+  when: test_stat_ec2.stat.isdir is not defined
+- name: enable ntpd
+  systemd: service=ntpd state=started enabled=yes

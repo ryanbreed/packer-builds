@@ -1,0 +1,32 @@
+- hosts: all
+  name: stub runtime for ruby
+  vars: 
+    ruby_package: ruby233
+    ruby_version: 2.3.3
+    ruby_install_prefix: /app/ruby/2.3.3
+  tasks:
+    - name: ensure app base
+      file: path={{item}} state=directory mode=0755 owner=root group=root mode=0755
+      with_items:
+        - /app
+        - /app/ruby
+
+    - name: install app-ruby user
+      user: name=app-ruby home="/app/ruby/home" shell="/bin/bash" createhome=True skeleton=/etc/skel
+
+    - name: add yum repo
+      yum_repository:
+        name: yum-repo-ryanbreed
+        baseurl: http://yum-repo-ryanbreed.s3-website-us-west-2.amazonaws.com/artifacts/7
+        description: managed package installs
+        gpgcheck: yes
+        gpgkey: http://yum-repo-ryanbreed.s3-website-us-west-2.amazonaws.com/RPM-GPG-KEY-yum-repo-ryanbreed
+        state: present
+        skip_if_unavailable: no
+        owner: root
+        group: root
+        mode: 0644
+        enabled: yes
+
+    - name: install ruby rpm
+      yum: name=ruby233 state=installed 

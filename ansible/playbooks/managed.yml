@@ -1,0 +1,12 @@
+- hosts: el7
+  tasks: 
+  - name: ensure user exists
+    user: name=ryan groups=wheel password='$6$SrTPa04QnSLMRj/y$NWinamzomCuMxpLbTxEdyuupn7/S61govUHTrXkDZaV8Cc3bUfb0BazKyLMax.2NATraaN8TFx/VMZMvmrqRJ.' state=present update_password=on_create
+  - name: ensure keys
+    authorized_key: 
+      manage_dir: yes
+      state: present
+      user: ryan
+      key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDZaX8+CbpM/KD68vA4jwXUZke+21s71vwOmLssQerf8T7yCXxfPlReDvqvi5YH/6mlGF+yOUvxucJxGdABz454odlvPR70jyL14v0COjOUIrgg78KLo/8Ada33b02pnX0u6U/uba9wi/RbXvQgPhw2uEQo8nisZ8bz/aDZGOrh/pVbRR4LWZkTSC7XJMlufHV08UueAwLws8dvsugS4n8ywldPDjOZlwxSQT8a8HUb/KCEzFSqiT9J3YG2z1j9DzFArYaKPOqRYeiOpj6ZUgFXjJffcrWHJ2mIPRivSHhteVdwYWVr/OD3wxJVvNYWWkoDVXyFYFoXtVedpEewKHNX ryan@pliskin
+#      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCnSCgxMeIOS5L0bJTf6YithrRXf2y/Af8+giyODsYnQorEI9BtrIOmhtUpBuZCvnMrGUHZpmSPV327S6G2DAL2RuvmkA0YqRGN/MzX0m9jMIuKtbFymB3p+5YW3bStBaLiItnFAHxs6PbXS8/uikS0Ur/Nrmh+QiIn+2gvIdrX7SDLw/lFcJV4ZhePfj8YuTItVngNf3m8eMj86V9GoBNL8FQ0PHf/0qqkC/GZdQaC4XhGAbVis24de8BoM13aRlRhrZC0HeIcJIeEOSMp+wR9nq6g9kClx//lUd2RLe1kO4Wg6wrSxoGAdMtHTBHFSq+HY52zxZgcDj8XKqt0nytF ninja
+#      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0vWS+UezaX+cPPLtyOI6VaTqFP62FKsdPiKZ/sSHWabpiMWXITbCb/fbmBdR/9JXe292xdZis5PAQ2/fFTcK/RaPNyh7M3b+QySDLFJu7g3jNAC+I8l2NDFAri4+SHUTibl19kMg+jXzHJEuAj3TJAQOT/YZwWkUO7pxIhxETNdpOFTQuk3SS7lKarIWx8knDW/c5CmKYJIXiPcf35J9HaiBWgjesCkKAzFmarG/PIrCMrL6GrH1a/WJGiv6nGCy7Y8W3R66Z0wjzf230ivgt6Zsn30gOyc1aNBsCnZRMKv/xylmv3iNyioMyxHqzR6K4L25LKgzrdA/VxrlB3PfV blanky

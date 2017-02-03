@@ -1,0 +1,179 @@
+{
+  "builders": [
+    {
+      "type": "amazon-instance",
+      "region": "us-west-2",
+      "instance_type": "t2.micro",
+      "source_ami": "ami-d2c924b2",
+      "ami_name": "packer-ryanbreed-centos7 {{timestamp}}",
+      "ami_description": "Base CentOS-7 Image",
+      "account_id": "{{ user `aws_account`}}",
+      "access_key": "{{user `packer_ak`}}",
+      "secret_key": "{{user `packer_sk`}}",
+      "s3_bucket":  "packer-images-ryanbreed",
+      "enhanced_networking": true,
+      "security_group_ids": ["sg-ef62ed97"],
+      "subnet_id": "subnet-71cdfe28",
+      "vpc_id": "vpc-389a615c",
+      "x509_cert_path":   "{{ user `aws_cert` }}",
+      "x509_key_path":    "{{ user `aws_key` }}",
+      "x509_upload_path": "/tmp",
+      "ssh_agent_auth": true,
+      "ssh_username": "centos",
+      "ssh_keypair_name": "packer-build",
+      "ssh_pty": true
+    },
+    {
+      "boot_command": [
+        "<up><tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `ks_path`}}<enter><wait>"
+      ],
+      "boot_wait": "10s",
+      "disk_size": "{{user `disk_size`}}",
+      "guest_os_type": "centos-64",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}",
+      "output_directory": "packer-{{user `template`}}-vmware",
+      "shutdown_command": "echo 'vagrant' | sudo -S /sbin/halt -h -p",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "10000s",
+      "tools_upload_flavor": "linux",
+      "type": "vmware-iso",
+      "vm_name": "{{ user `template` }}",
+      "vmx_data": {
+        "cpuid.coresPerSocket": "1",
+        "memsize": "{{ user `memory` }}",
+        "numvcpus": "{{ user `cpus` }}"
+      }
+    },
+    {
+      "boot_command": [
+        "<up><tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `ks_path`}}<enter><wait>"
+      ],
+      "boot_wait": "10s",
+      "disk_size": "{{user `disk_size`}}",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}",
+      "output_directory": "packer-{{user `template`}}-qemu",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "10000s",
+      "type": "qemu",
+      "vm_name": "{{ user `template` }}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type":"shell",
+      "only":["amazon-instance"],
+      "environment_vars": [
+        "HOME_DIR=/home/vagrant",
+        "BENTO_NAME={{ user `name`}}",
+        "BENTO_BOX={{ user `box_basename`}}",
+        "BENTO_TEMPLATE={{ user `template`}}",
+        "BENTO_VERSION={{ user `version`}}",
+        "BENTO_TIMESTAMP={{ user `build_timestamp`}}"
+      ],
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "scripts": [
+        "scripts/aws/install_amitools.sh",
+        "scripts/aws/adduser_vagrant.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "environment_vars": [
+        "HOME_DIR=/home/vagrant",
+        "BENTO_NAME={{ user `name`}}",
+        "BENTO_BOX={{ user `box_basename`}}",
+        "BENTO_TEMPLATE={{ user `template`}}",
+        "BENTO_VERSION={{ user `version`}}",
+        "BENTO_TIMESTAMP={{ user `build_timestamp`}}"
+      ],
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "scripts": [
+        "scripts/centos/disable_ipv6_grub.sh",
+        "scripts/centos/disable_selinux.sh",
+        "scripts/common/sshd.sh",
+        "scripts/common/metadata.sh"
+      ]
+    },
+    {
+      "type": "ansible",
+      "playbook_file":"./ansible/base_box.yml",
+      "extra_arguments": [
+        "--become",
+        "--become-method=sudo"
+      ],
+      "ansible_env_vars": [
+        "BENTO_NAME={{ user `name`}}",
+        "BENTO_BOX={{ user `box_basename`}}",
+        "BENTO_TEMPLATE={{ user `template`}}",
+        "BENTO_VERSION={{ user `version`}}",
+        "BENTO_TIMESTAMP={{ user `build_timestamp`}}",
+        "ANSIBLE_HOST_KEY_CHECKING=False",
+        "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o ControlMaster=auto -o ControlPersist=60s'",
+        "ANSIBLE_NOCOLOR=True"
+      ]
+    },
+    {
+      "type": "shell",
+      "except": ["amazon-instance"],
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "scripts": [
+        "scripts/centos/cleanup.sh",
+        "scripts/common/minimize.sh"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "builds/{{user `box_basename`}}.box",
+      "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
+      "keep_input_artifact": true
+
+    },
+    {
+      "type":"compress",
+      "output":"/data/export/images/packer_{{.BuilderType}}-{{user `box_basename`}}.tar.gz",
+      "keep_input_artifact": true
+    }
+  ],
+  "variables": {
+    "box_basename": "centos",
+    "build_timestamp": "{{isotime \"20060102150405\"}}",
+    "cpus": "2",
+    "disk_size": "10240",
+    "git_revision": "0.1.0",
+    "headless": "true",
+    "http_proxy": "{{ env `http_proxy`}}",
+    "https_proxy": "{{ env `https_proxy`}}",
+    "iso_checksum": "c455ee948e872ad2194bdddd39045b83634e8613249182b88f549bb2319d97eb",
+    "iso_checksum_type": "sha256",
+    "iso_name": "CentOS-7-x86_64-DVD-1611.iso",
+    "ks_path": "breed-centos-7.3/ks.cfg",
+    "memory": "1024",
+    "metadata": "floppy/dummy_metadata.json",
+    "mirror": "http://mirrors.kernel.org/centos",
+    "mirror_directory": "7.3.1611/isos/x86_64",
+    "name": "centos-7.3",
+    "no_proxy": "{{env `no_proxy`}}",
+    "template": "breed-centos-7.3-x86_64",
+    "version": "0.3.0",
+    "packer_ak": "{{ env `PACKER_AK`}}",
+    "packer_sk": "{{ env `PACKER_SK`}}",
+    "aws_account": "{{ env `AWS_ACCOUNT_ID` }}",
+    "aws_cert":   "{{ env `HOME` }}/.aws/x509/packer.key",
+    "aws_key":    "{{ env `HOME` }}/.aws/x509/packer.crt"
+  }
+}

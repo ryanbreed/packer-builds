@@ -1,0 +1,19 @@
+- name: base box config
+  hosts: all
+  vars:
+    syslog_remote: ninja
+    syslog_remote_port: 5140
+    audit_syslog_active: yes
+    audit_write_local: no
+    audit_log_format: ENRICHED
+    audit_dispatch_q_depth: 20000
+  tasks:
+  - include: task_test_environment.yml
+  - include: task_packages.yml
+  - include: task_rsyslog.yml
+  - include: task_auditd.yml
+  handlers:
+    - name: restart rsyslog
+      systemd: service=rsyslog state=restarted
+    - name: generate audit rules
+      command: /usr/sbin/augenrules --load

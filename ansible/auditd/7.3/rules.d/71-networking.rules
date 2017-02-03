@@ -1,0 +1,4 @@
+## This is to check if the system is making or recieving connections
+## externally
+#-a always,exit -F arch=b64 -S connect    -F key=ioc-external-access -F exit!=-EINPROGRESS -F exit!=-ENOENT
+#-a always,exit -F arch=b64 -S accept     -F key=ioc-external-access

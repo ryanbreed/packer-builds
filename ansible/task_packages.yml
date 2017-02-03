@@ -1,0 +1,66 @@
+- name: enable extras repo
+  yum_repo: name=extras enabled=yes
+- name: install ryanbreed repo
+  yum_repo:
+    name:  yum-repo-ryanbreed
+    description: custom packages for the discerning user
+    state: present
+    enabled: yes
+    baseurl: http://yum-repo-ryanbreed.s3-website-us-west-2.amazonaws.com/artifacts/7
+    gpgkey: http://yum-repo-ryanbreed.s3-website-us-west-2.amazonaws.com/RPM-GPG-KEY-yum-repo-ryanbreed
+    gpgcheck: yes
+- name: install required base packages
+  yum: name={{item}} state=latest
+  with_items:
+    - audit
+    - audispd-plugins
+    - authconfig
+    - bzip2
+    - clang
+    - clang-analyzer
+    - clang-devel
+    - cloud-utils
+    - cpp
+    - deltarpm
+    - euca2ools
+    - gcc
+    - kernel-devel
+    - kernel-headers
+    - lldb
+    - lldb-devel
+    - llvm
+    - llvm-devel
+    - llvm-libs
+    - make
+    - nfs-utils
+    - ntp
+    - openssh-clients
+    - perl
+    - unzip
+    - vim-minimal
+    - xz
+    - ruby
+    - grub2-tools
+    - gdisk
+    - kpartx
+    - parted
+    - python2-pip
+    - python-virtualenv
+    - NetworkManager
+    - open-vm-tools
+    - qemu-guest-agent
+  - name: remove unnecessary packages
+    yum: name={{item}} state=removed
+    with_items:
+      -alsa-firmware
+      -alsa-lib
+      -alsa-tools-firmware
+      -fprintd-pam
+      -irqbalance
+      -tuned
+      -intltool
+      -java-1.6.0-openjdk
+      -java-1.7.0-openjdk
+      -java-1.8.0-openjdk
+      -lldpad
+      -chrony

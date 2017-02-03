@@ -1,8 +1,5 @@
-- name: install repo tools
-  yum: name={{item}} state=installed
-  with_items:
-    - epel-release
-    - yum-utils
+- name: install epel
+  yum: name=epel-release state=installed
 - name: enable extras repo
   command: yum-config-manager --save --setopt=extras.enabled=1
 - name: install repo key

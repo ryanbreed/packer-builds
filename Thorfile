@@ -30,25 +30,12 @@ class Packer < Thor
   end
 
   desc 'build', "Execute the packer builder"
-  option :os, :banner => "<os>", :default => "*"
-  option :ver, :banner => "<version>", :default => "*"
-  option :bits, :banner => "<bits>"
   option :only, :banner => "<only>"
-
-
   def build
-    if options[:bits] 
-      processor = options[:bits] == "64" ? "{amd64,x86_64}" : "i386"
-    else
-      processor = "*"
-    end
-
-    templates = Dir.glob("#{options[:os]}-#{options[:ver]}-#{processor}.json")
-
+    templates = Dir.glob("*.json")
     if options[:only]
       templates.each do |template|
-        name = template.chomp(".json").split("-")
-        system "packer build -only=#{name[0]}-#{name[1]}-#{name[2]}-#{options[:only]} #{template}"
+        system "packer build -only=#{options[:only]} #{template}"
       end
     else
       templates.each do |template|

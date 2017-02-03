@@ -16,4 +16,4 @@
 
 - name: set aws hvm key
   set_fact: hvm_aws=True
-  when: (test_stat_ec2.stat.isdir is not defined) and (test_stat_ec2.stat.isdir==True)
+  when: (test_stat_ec2.stat.isdir is defined) and (test_stat_ec2.stat.isdir==True)

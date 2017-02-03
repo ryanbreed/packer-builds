@@ -1,5 +1,5 @@
 - name: enable extras repo
-  yum_repository: name=extras enabled=yes
+  command: yum-config-manager --save --setopt=extras.enabled=1
 - name: install ryanbreed repo
   yum_repository:
     name:  yum-repo-ryanbreed

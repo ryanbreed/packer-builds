@@ -138,7 +138,7 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "builds/{{user `box_basename`}}.box",
+      "output": "/data/export/boxes/packer_{{.Provider}}-{{user `box_basename`}}.box",
       "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
       "keep_input_artifact": true
 

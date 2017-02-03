@@ -161,7 +161,7 @@
       "type":"shell-local",
       "only":["vmware-iso"],
       "inline":[
-        "md5sum < /data/export/boxes/packer_vmware-centos.box | sed -e 's/-/packer_vmware-centos.box/' > /data/export/boxes/packer_vmware-centos.box.md5"
+        "hash=$( openssl md5 < /data/export/boxes/packer_vmware-centos.box | awk '{print $2}'); echo \"$hash packer_vmware-centos.box\" > /data/export/boxes/packer_vmware-centos.box.md5"
       ]
     }
   ],

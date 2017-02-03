@@ -1,6 +1,19 @@
 - name: test ec2 tools
   stat: path=/opt/ec2
   register: test_stat_ec2
+
 - name: list kernel modules
   command: lsmod
   register: test_cmd_lsmod
+
+- name: set vmware hvm key
+  set_fact: hvm_vmware=True
+  when: test_cmd_lsmod.stdout.find('vmmon') != -1
+
+- name: set qemu hvm key
+  set_fact: hvm_qemu=True
+  when: test_cmd_lsmod.stdout.find('virtio') != -1
+
+- name: set aws hvm key
+  set_fact: hvm_aws=True
+  when: (test_stat_ec2.stat.isdir is not defined) and (test_stat_ec2.stat.isdir==True)

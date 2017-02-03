@@ -8,10 +8,10 @@
     audit_log_format: ENRICHED
     audit_dispatch_q_depth: 20000
   tasks:
-  - include: task_test_environment.yml
-  - include: task_packages.yml
-  - include: task_rsyslog.yml
-  - include: task_auditd.yml
+    - include: task_test_environment.yml
+    - include: task_packages.yml
+    - include: task_rsyslog.yml
+    - include: task_auditd.yml
   handlers:
     - name: restart rsyslog
       systemd: service=rsyslog state=restarted

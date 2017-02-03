@@ -1,7 +1,7 @@
 - name: enable extras repo
-  yum_repo: name=extras enabled=yes
+  yum_repository: name=extras enabled=yes
 - name: install ryanbreed repo
-  yum_repo:
+  yum_repository:
     name:  yum-repo-ryanbreed
     description: custom packages for the discerning user
     state: present
@@ -47,20 +47,24 @@
     - python2-pip
     - python-virtualenv
     - NetworkManager
-    - open-vm-tools
-    - qemu-guest-agent
-  - name: remove unnecessary packages
-    yum: name={{item}} state=removed
-    with_items:
-      -alsa-firmware
-      -alsa-lib
-      -alsa-tools-firmware
-      -fprintd-pam
-      -irqbalance
-      -tuned
-      -intltool
-      -java-1.6.0-openjdk
-      -java-1.7.0-openjdk
-      -java-1.8.0-openjdk
-      -lldpad
-      -chrony
+- name: Install VMWare Guest Tools
+  yum: name=open-vm-tools state=latest
+  when: hvm_vmware
+- name: Install QEMU Guest Agent
+  yum: name=qemu-guest-agent state=latest
+  when: hvm_qemu
+- name: remove unnecessary packages
+  yum: name={{item}} state=removed
+  with_items:
+    -alsa-firmware
+    -alsa-lib
+    -alsa-tools-firmware
+    -fprintd-pam
+    -irqbalance
+    -tuned
+    -intltool
+    -java-1.6.0-openjdk
+    -java-1.7.0-openjdk
+    -java-1.8.0-openjdk
+    -lldpad
+    -chrony

@@ -6,7 +6,7 @@ require 'timeout'
 
 
 class Packer < Thor
-  no_commands do 
+  no_commands do
     def target_os
       RbConfig::CONFIG["target_os"].gsub(/\d+/,'').downcase
     end
@@ -36,6 +36,7 @@ class Packer < Thor
 
   desc 'base', "build base box"
   option :template, default: 'breed-base-*.json'
+  option :error, default: 'cleanup'
   def base
     only=case target_os
     when /darwin/
@@ -47,7 +48,7 @@ class Packer < Thor
     end
     templates = Dir.glob(options[:template])
     templates.each do |t|
-      system "packer build -only=#{only} #{t}"
+      system "packer build -on-error=#{options[:error]} -only=#{only} #{t}"
     end
   end
 

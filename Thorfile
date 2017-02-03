@@ -4,8 +4,13 @@ require 'thor'
 require 'fileutils'
 require 'timeout'
 
-class Packer < Thor
 
+class Packer < Thor
+  no_commands do 
+    def target_os
+      RbConfig::CONFIG["target_os"].gsub(/\d+/,'').downcase
+    end
+  end
   desc 'validate', "Validate all the packer templates"
   def validate
     Dir.chdir './packer' do
@@ -26,6 +31,23 @@ class Packer < Thor
       FileUtils.rm_rf(Dir.glob('./packer/packer_cache/*'))
     elsif what == "boxes"
       FileUtils.rm_rf(Dir.glob('./packer/*.box'))
+    end
+  end
+
+  desc 'base', "build base box"
+  option :template, default: 'breed-base-*.json'
+  def base
+    only=case target_os
+    when /darwin/
+      "vmware-iso"
+    when /linux/
+      "qemu"
+    else
+      "virtualbox-iso"
+    end
+    templates = Dir.glob(options[:template])
+    templates.each do |t|
+      system "packer build -only=#{only} #{t}"
     end
   end
 

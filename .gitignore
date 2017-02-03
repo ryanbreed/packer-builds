@@ -5,7 +5,6 @@ iso
 *.variables.json
 virtualfloppy.vfd
 /packer_cache/
-/packer-*/
 /builds/
 /log/*
 /tmp/*

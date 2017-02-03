@@ -1,0 +1,3 @@
+[submodule "vendor/bento"]
+	path = vendor/bento
+	url = https://github.com/chef/bento

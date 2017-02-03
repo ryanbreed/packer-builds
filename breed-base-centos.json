@@ -163,6 +163,7 @@
       "inline":[
         "md5sum < /data/export/boxes/packer_vmware-centos.box | sed -e 's/-/packer_vmware-centos.box/' > /data/export/images/packer_vmware-centos.box.md5"
       ]
+    }
   ],
   "variables": {
     "box_basename": "centos",

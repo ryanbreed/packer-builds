@@ -10,7 +10,7 @@
       "iso_checksum_type": "md5",
       "iso_checksum_url": "http://ninja/export/images/breed-base-centos.md5",
       "iso_url": "http://ninja/export/images/breed-base-centos",
-      "output_directory": "packer-{{user `template`}}-qemu",
+      "output_directory": "builds/packer-{{user `template`}}-qemu",
       "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
       "ssh_port": 22,
       "ssh_username": "vagrant",

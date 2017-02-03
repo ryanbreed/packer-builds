@@ -1,4 +1,5 @@
 #!/bin/bash
+yum -y install yum-utils
 mkdir -p /opt/ec2/dist
 ( cd /opt/ec2/dist && curl -L -O http://s3.amazonaws.com/ec2-downloads/ec2-ami-tools.zip && unzip ec2-ami-tools.zip -d /opt/ec2 )
 cat <<END > /etc/profile.d/ec2-amitools.sh

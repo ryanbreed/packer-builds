@@ -53,7 +53,8 @@
       "type":"shell-local",
       "inline": [
         "cp -vf builds/packer-ruby-qemu/stubby-ruby /data/export/images",
-        "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5"
+        "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5",
+        "md5sum < /data/export/boxes/packer_libvirt-stubby-ruby.box | sed -e 's/-/packer_libvirt-stubby-ruby.box/' > /data/export/boxes/packer_libvirt-stubby-ruby.box.md5"
       ]
     }
   ],

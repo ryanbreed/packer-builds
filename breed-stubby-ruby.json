@@ -5,10 +5,11 @@
       "source_path": "builds/vmware-vmx-base-centos/breed-base-centos.vmx",
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
-      "output_directory": "builds/packer-{{user `template`}}-{{.BuilderType}}",
+      "output_directory": "builds/packer-{{user `template`}}-{{build_type}}",
       "ssh_username": "vagrant",
       "ssh_password": "vagrant",
       "ssh_wait_timeout": "100s",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
       "vm_name": "{{user `box_basename`}}-{{ user `template` }}"
     },
     {
@@ -56,8 +57,16 @@
         "md5sum < /data/export/images/stubby-ruby | sed -e 's/-/stubby-ruby/' > /data/export/images/stubby-ruby.md5",
         "md5sum < /data/export/boxes/packer_libvirt-stubby-ruby.box | sed -e 's/-/packer_libvirt-stubby-ruby.box/' > /data/export/boxes/packer_libvirt-stubby-ruby.box.md5"
       ]
+    },
+    {
+      "only":["qemu"],
+      "type":"shell-local",
+      "inline": [
+        "openssl md5 < /data/export/boxes/packer_vmware-stubby-ruby.box | awk '{print $2,\"packer_vmware-stubby-ruby.box\"}' > /data/export/boxes/packer_vmware-stubby-ruby.box.md5"
+      ]
     }
   ],
+
   "variables": {
     "build_timestamp": "{{isotime \"20060102150405\"}}",
     "box_basename": "stubby",

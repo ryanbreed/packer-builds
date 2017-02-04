@@ -59,7 +59,7 @@
       ]
     },
     {
-      "only":["qemu"],
+      "only":["vmware-vmx"],
       "type":"shell-local",
       "inline": [
         "openssl md5 < /data/export/boxes/packer_vmware-stubby-ruby.box | awk '{print $2,\"packer_vmware-stubby-ruby.box\"}' > /data/export/boxes/packer_vmware-stubby-ruby.box.md5"

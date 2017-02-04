@@ -1,16 +1,28 @@
 {
   "builders": [
     {
+      "type":"vmware-vmx",
+      "source_path": "builds/vmware-vmx-base-centos/breed-base-centos.vmx",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "output_directory": "builds/packer-{{user `template`}}-{{build_type}}",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "100s",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
+      "vm_name": "{{user `box_basename`}}-{{ user `template` }}"
+    },
+    {
       "type": "qemu",
       "disk_image": true,
       "boot_wait": "10s",
       "disk_size": "{{user `disk_size`}}",
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
+      "iso_url": "http://ninja/export/images/breed-base-centos",
       "iso_checksum_type": "md5",
-      "iso_checksum_url": "http://ninja/export/images/breed-centos-7.3-x86_64.md5",
-      "iso_url": "http://ninja/export/images/breed-centos-7.3-x86_64",
-      "output_directory": "packer-{{user `template`}}-qemu",
+      "iso_checksum_url": "http://ninja/export/images/breed-base-centos.md5",
+      "output_directory": "builds/packer-{{user `template`}}-qemu",
       "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
       "ssh_port": 22,
       "ssh_username": "vagrant",
@@ -23,36 +35,36 @@
     {
       "type":"shell",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
-      "inline": [
-        "nmcli g hostname packer-stubby-python",
-        "systemctl restart rsyslog",
-        "systemctl reload auditd",
-        "shutdown -r now"
-      ]
+      "inline": [ "nmcli g hostname packer-stubby-python" ]
     },
     {
       "type": "ansible",
-      "playbook_file":"ansible/python.yml",
-      "extra_arguments": [
-        "-vvv"
-      ],
-      "pause_before":"10s"
+      "playbook_file":"ansible/pb_python.yml"
     }
   ],
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "/data/export/boxes/{{user `box_basename`}}-{{user `template`}}.{{.Provider}}.box",
+      "output": "/data/export/boxes/packer_{{.Provider}}-{{user `box_basename`}}-{{user `template`}}.box",
       "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
       "keep_input_artifact": true
     },
     {
       "type":"shell-local",
       "inline": [
-        "cp -vf packer-python-qemu/stubby-python /data/export/images",
-        "md5sum < /data/export/images/stubby-python | sed -e 's/-/stubby-python/' > /data/export/images/stubby-python.md5"
+        "cp -vf builds/packer-python-qemu/stubby-python /data/export/images",
+        "openssl md5 < /data/export/images/stubby-python | awk '{print $2,\"stubby-python\"}' > /data/export/images/stubby-python.md5",
+        "openssl md5 < /data/export/boxes/packer_libvirt-stubby-python.box | awk '{print $2,\"packer_libvirt-stubby-python.box\"}' > /data/export/boxes/packer_libvirt-stubby-python.box.md5"
+      ]
+    },
+    {
+      "only":["vmware-vmx"],
+      "type":"shell-local",
+      "inline": [
+        "openssl md5 < /data/export/boxes/packer_vmware-stubby-python.box | awk '{print $2,\"packer_vmware-stubby-python.box\"}' > /data/export/boxes/packer_vmware-stubby-python.box.md5"
       ]
     }
+
   ],
   "variables": {
     "build_timestamp": "{{isotime \"20060102150405\"}}",

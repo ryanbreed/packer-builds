@@ -51,6 +51,7 @@
     },
     {
       "type":"shell-local",
+      "only":["qemu"],
       "inline": [
         "cp -vf builds/packer-python-qemu/stubby-python /data/export/images",
         "openssl md5 < /data/export/images/stubby-python | awk '{print $2,\"stubby-python\"}' > /data/export/images/stubby-python.md5",

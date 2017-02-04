@@ -6,7 +6,6 @@
       file: path=/app/python state=directory mode=0755 owner=root group=root mode=0755
     - name: install app-python user
       user: name=app-python home="/app/python/home" shell="/bin/bash" createhome=True skeleton=/etc/skel uid=8001
-
   roles:
     - role: andrewrothstein.anaconda
       anaconda_cleanup: True

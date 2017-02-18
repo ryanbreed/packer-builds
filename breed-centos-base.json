@@ -25,7 +25,7 @@
     },
     {
       "type": "vmware-iso",
-      "output_directory": "builds/packer-{{user `template`}}-vmware",
+      "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
       "boot_command": [
         "<up><tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `ks_path`}}<enter><wait>"
       ],
@@ -38,8 +38,8 @@
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "iso_url": "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}",
       "shutdown_command": "echo 'vagrant' | sudo -S /sbin/halt -h -p",
-      "ssh_password": "vagrant",
       "ssh_port": 22,
+      "ssh_password": "vagrant",
       "ssh_username": "vagrant",
       "ssh_wait_timeout": "10000s",
       "tools_upload_flavor": "linux",
@@ -52,7 +52,7 @@
     },
     {
       "type": "qemu",
-      "output_directory": "builds/packer-{{user `template`}}-qemu",
+      "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
       "boot_command": [
         "<up><tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `ks_path`}}<enter><wait>"
       ],
@@ -64,8 +64,8 @@
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "iso_url": "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}",
       "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
-      "ssh_password": "vagrant",
       "ssh_port": 22,
+      "ssh_password": "vagrant",
       "ssh_username": "vagrant",
       "ssh_wait_timeout": "10000s",
       "vm_name": "{{ user `template` }}"
@@ -78,7 +78,7 @@
       "environment_vars": [
         "HOME_DIR=/home/vagrant",
         "BENTO_NAME={{ user `name`}}",
-        "BENTO_BOX={{ user `box_basename`}}",
+        "BENTO_BOX={{ user `boxtype`}}",
         "BENTO_TEMPLATE={{ user `template`}}",
         "BENTO_VERSION={{ user `version`}}",
         "BENTO_TIMESTAMP={{ user `build_timestamp`}}"
@@ -94,7 +94,7 @@
       "environment_vars": [
         "HOME_DIR=/home/vagrant",
         "BENTO_NAME={{ user `name`}}",
-        "BENTO_BOX={{ user `box_basename`}}",
+        "BENTO_BOX={{ user `boxtype`}}",
         "BENTO_TEMPLATE={{ user `template`}}",
         "BENTO_VERSION={{ user `version`}}",
         "BENTO_TIMESTAMP={{ user `build_timestamp`}}"
@@ -116,7 +116,7 @@
       ],
       "ansible_env_vars": [
         "BENTO_NAME={{ user `name`}}",
-        "BENTO_BOX={{ user `box_basename`}}",
+        "BENTO_BOX={{ user `boxtype`}}",
         "BENTO_TEMPLATE={{ user `template`}}",
         "BENTO_VERSION={{ user `version`}}",
         "BENTO_TIMESTAMP={{ user `build_timestamp`}}",
@@ -138,36 +138,34 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "/data/export/boxes/packer_{{.Provider}}-{{user `box_basename`}}.box",
+      "output": "{{user `box_dest`}}/packer_{{.Provider}}-{{user `boxtype`}}-{{user `flavor`}}.box",
       "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
       "keep_input_artifact": true
 
     },
     {
-      "type":"compress",
-      "output":"/data/export/images/packer_{{.BuilderType}}-{{user `box_basename`}}.tar.gz",
-      "keep_input_artifact": true
-    },
-    {
       "type":"shell-local",
       "only":["qemu"],
       "inline":[
-        "mv builds/packer-breed-base-centos-qemu/breed-base-centos /data/export/images/",
-        "md5sum < /data/export/images/breed-base-centos | sed -e 's/-/breed-base-centos/' > /data/export/images/breed-base-centos.md5",
-        "md5sum < /data/export/boxes/packer_libvirt-centos.box | sed -e 's/-/packer_libvirt-centos.box/' > /data/export/boxes/packer_libvirt-centos.box.md5"
+        "cp -vf builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}/{{user `boxtype`}}-{{user `flavor`}} {{user `image_dest`}}",
+        "bin/hash_img.sh {{user `image_dest`}}/{{user `boxtype`}}-{{user `flavor`}}",
+        "bin/hash_img.sh {{user `box_dest`}}/packer_libvirt-{{user `boxtype`}}-{{user `flavor`}}.box"
       ]
     },
     {
       "type":"shell-local",
       "only":["vmware-iso"],
       "inline":[
-        "hash=$( openssl md5 < /data/export/boxes/packer_vmware-centos.box | awk '{print $2}'); echo \"$hash packer_vmware-centos.box\" > /data/export/boxes/packer_vmware-centos.box.md5"
+        "bin/hash_img.sh {{user `box_dest`}}/packer_vmware-{{user `boxtype`}}-{{user `flavor`}}.box"
       ]
     }
   ],
   "variables": {
-    "box_basename": "centos",
     "build_timestamp": "{{isotime \"20060102150405\"}}",
+    "boxtype": "centos",
+    "flavor": "base",
+    "box_dest": "/data/export/boxes",
+    "image_dest": "/data/export/images",
     "cpus": "2",
     "disk_size": "10240",
     "git_revision": "0.1.0",
@@ -181,7 +179,6 @@
     "mirror": "http://mirrors.kernel.org/centos",
     "mirror_directory": "7.3.1611/isos/x86_64",
     "name": "centos-7.3",
-    "template": "breed-base-centos",
     "version": "0.3.0",
     "packer_ak": "{{ env `PACKER_AK`}}",
     "packer_sk": "{{ env `PACKER_SK`}}",

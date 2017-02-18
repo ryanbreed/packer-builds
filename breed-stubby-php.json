@@ -8,26 +8,18 @@
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
       "iso_checksum_type": "md5",
-      "iso_checksum_url": "http://ninja/export/images/breed-centos-7.3-x86_64.md5",
-      "iso_url": "http://ninja/export/images/breed-centos-7.3-x86_64",
-      "output_directory": "packer-{{user `template`}}-qemu",
+      "iso_checksum_url": "http://ninja/export/images/breed-base-centos.md5",
+      "iso_url": "http://ninja/export/images/breed-base-centos",
       "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
       "ssh_port": 22,
       "ssh_username": "vagrant",
       "ssh_password": "vagrant",
       "ssh_wait_timeout": "100s",
-      "vm_name": "{{user `box_basename`}}-{{ user `template` }}"
+      "vm_name": "{{user `boxtype`}}-{{ user `flavor` }}",
+      "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}"
     }
   ],
   "provisioners": [
-    {
-      "type":"shell",
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
-      "inline": [
-        "nmcli g hostname packer-stubby-php",
-        "shutdown -r now"
-      ]
-    },
     {
       "type": "ansible",
       "playbook_file":"./ansible/php.yml",
@@ -37,29 +29,31 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "/data/export/boxes/{{user `box_basename`}}-{{user `template`}}.{{.Provider}}.box",
+      "output": "{{user `box_dest`}}/packer_{{.Provider}}-{{user `boxtype`}}-{{user `flavor`}}.box",
       "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
       "keep_input_artifact": true
     },
     {
+      "only":["qemu"],
       "type":"shell-local",
       "inline": [
-        "cp -vf packer-php-qemu/stubby-php /data/export/images",
-        "md5sum < /data/export/images/stubby-php | sed -e 's/-/stubby-php/' > /data/export/images/stubby-php.md5", 
-        "md5sum < /data/export/boxes/stubby-php.libvirt.box | sed -e 's/-/stubby-php.libvirt.box/' > /data/export/boxes/stubby-php.libvirt.box.md5"
+        "cp -vf builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}/{{user `boxtype`}}-{{user `flavor`}} {{user `image_dest`}}",
+        "bin/hash_img.sh {{user `image_dest`}}/{{user `boxtype`}}-{{user `flavor`}}",
+        "bin/hash_img.sh {{user `box_dest`}}/packer_libvirt-{{user `boxtype`}}-{{user `flavor`}}.box"
       ]
     }
   ],
   "variables": {
     "build_timestamp": "{{isotime \"20060102150405\"}}",
-    "box_basename": "stubby",
-    "template": "php",
+    "box_dest": "/data/export/boxes",
+    "image_dest": "/data/export/images",
+    "boxtype": "stubby",
+    "flavor": "php",
     "cpus": "2",
     "disk_size": "10240",
     "headless": "true",
     "memory": "1024",
     "metadata": "floppy/dummy_metadata.json",
-    "no_proxy": "{{env `no_proxy`}}",
     "version": "0.2.0"
   }
 }

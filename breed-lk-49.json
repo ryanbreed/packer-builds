@@ -35,7 +35,7 @@
     {
       "type":"shell",
       "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
-      "inline": [ 
+      "inline": [
         "rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org",
         "rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm",
         "yum -y remove clang* kernel-headers*",
@@ -56,13 +56,15 @@
       "type":"shell-local",
       "inline": [
         "cp -vf builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}/{{user `boxtype`}}-{{user `flavor`}} {{user `image_dest`}}",
-        "bin/hash_img.sh {{user `image_dest`}}/{{user `boxtype`}}-{{user `flavor`}}"
+        "bin/hash_img.sh {{user `image_dest`}}/{{user `boxtype`}}-{{user `flavor`}}",
+        "bin/hash_img.sh {{user `box_dest`}}/packer_libvirt-{{user `boxtype`}}-{{user `flavor`}}.box"
       ]
     },
     {
+      "only":["vmware-vmx"],
       "type":"shell-local",
       "inline": [
-        "bin/hash_img.sh {{user `box_dest`}}/packer_libvirt-{{user `boxtype`}}-{{user `flavor`}}.box"
+        "bin/hash_img.sh {{user `box_dest`}}/packer_vmware-{{user `boxtype`}}-{{user `flavor`}}.box"
       ]
     }
 

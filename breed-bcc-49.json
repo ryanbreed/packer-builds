@@ -1,0 +1,88 @@
+{
+  "builders": [
+    {
+      "type":"vmware-vmx",
+      "source_path": "builds/vmware-vmx-base-centos/breed-base-centos.vmx",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "100s",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
+      "vm_name": "{{user `boxtype`}}-{{ user `flavor` }}"
+    },
+    {
+      "type": "qemu",
+      "disk_image": true,
+      "boot_wait": "10s",
+      "disk_size": "{{user `disk_size`}}",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "http",
+      "iso_checksum_type": "md5",
+      "iso_checksum_url": "http://ninja/export/images/breed-base-centos.md5",
+      "iso_url": "http://ninja/export/images/breed-base-centos",
+      "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
+      "ssh_port": 22,
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "100s",
+      "vm_name": "{{user `boxtype`}}-{{ user `flavor` }}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type":"shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "inline": [ 
+        "rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org",
+        "rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm",
+        "yum -y remove clang* kernel-headers*",
+        "yum -y --enablerepo=elrepo-kernel install kernel-ml kernel-ml-headers kernel-ml-devel kernel-ml-tools kernel-ml-doc kernel-ml-tools kernel-ml-tools-libs kernel-ml-tools-libs-devel perf python-perf"
+
+      ]
+    },
+    {
+      "type":"ansible",
+      "playbook_file":"ansible/pb_bcc.yml"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant",
+      "output": "{{user `box_dest`}}/packer_{{.Provider}}-{{user `boxtype`}}-{{user `flavor`}}.box",
+      "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
+      "keep_input_artifact": true
+    },
+    {
+      "only":["qemu"],
+      "type":"shell-local",
+      "inline": [
+        "cp -vf builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}/{{user `boxtype`}}-{{user `flavor`}} {{user `image_dest`}}",
+        "bin/hash_img.sh {{user `image_dest`}}/{{user `boxtype`}}-{{user `flavor`}}"
+      ]
+    },
+    {
+      "type":"shell-local",
+      "inline": [
+        "bin/hash_img.sh {{user `box_dest`}}/packer_libvirt-{{user `boxtype`}}-{{user `flavor`}}.box"
+      ]
+    }
+
+  ],
+
+  "variables": {
+    "build_timestamp": "{{isotime \"20060102150405\"}}",
+    "box_dest": "/data/export/boxes",
+    "image_dest": "/data/export/images",
+    "boxtype": "lk",
+    "flavor": "49",
+    "cpus": "2",
+    "disk_size": "10240",
+    "headless": "true",
+    "memory": "1024",
+    "metadata": "floppy/dummy_metadata.json",
+    "version": "0.2.0"
+  }
+}

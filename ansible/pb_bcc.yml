@@ -1,0 +1,59 @@
+---
+- hosts: all
+  name: install bcc Tools for BPF-based Linux IO analysis, networking, monitoring, and more
+  tasks:
+   - name: bcc install buildtime packages
+     yum: name={{item}} state=latest 
+     with_items: 
+      - clang
+      - clang-analyzer
+      - clang-devel
+      - llvm
+      - llvm-devel
+      - llvm-libs
+      - lldb
+      - lldb-devel
+      - git
+      - bison
+      - cmake3
+      - ethtool
+      - flex
+      - iperf
+      - libstdc++-static
+      - python-netaddr
+      - python-pip
+      - gcc
+      - gcc-c++
+      - make
+      - zlib-devel
+      - elfutils-libelf-devel
+      - luajit
+      - luajit-devel 
+   - name: bcc install python deps
+     pip: name=pyroute2
+   - name: bcc checkout source from github
+     git: 
+       repo: https://github.com/iovisor/bcc 
+       clone: yes 
+       recursive: yes 
+       dest: /home/vagrant/build/bcc
+
+   - name: bcc checkout llvm
+     git: 
+       repo: http://llvm.org/git/llvm.git
+       clone: yes 
+       recursive: yes 
+       dest: /home/vagrant/build/llvm
+
+   - name: bcc checkout clang
+     git: 
+       repo: http://llvm.org/git/clang.git
+       clone: yes 
+       recursive: yes 
+       dest: /home/vagrant/build/llvm/tools/clang
+
+   - name: bcc make llvm build dir
+     file: path=/home/vagrant/build/llvm/build/install state=directory recurse=true
+
+   - name: bcc llvm cmake makefiles
+     script: scripts/build_bcc.sh creates=/usr/share/bcc/tools/execsnoop

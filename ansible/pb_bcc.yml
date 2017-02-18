@@ -16,6 +16,7 @@
       - git
       - bison
       - cmake3
+      - cmake3-data
       - ethtool
       - flex
       - iperf
@@ -31,6 +32,8 @@
       - luajit-devel 
    - name: bcc install python deps
      pip: name=pyroute2
+   - name: bcc symlink cmake3
+     file: path=/usr/bin/cmake src=/usr/bin/cmake3 state=link force=yes
    - name: bcc checkout source from github
      git: 
        repo: https://github.com/iovisor/bcc 
@@ -55,5 +58,5 @@
    - name: bcc make llvm build dir
      file: path=/home/vagrant/build/llvm/build/install state=directory recurse=true
 
-   - name: bcc llvm cmake makefiles
+   - name: bcc compile clang/llvm; install bcc
      script: scripts/build_bcc.sh creates=/usr/share/bcc/tools/execsnoop

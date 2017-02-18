@@ -43,7 +43,7 @@
       "ssh_username": "vagrant",
       "ssh_wait_timeout": "10000s",
       "tools_upload_flavor": "linux",
-      "vm_name": "{{ user `template` }}",
+      "vm_name": "{{ user `boxtype` }}-{{user `flavor`}}",
       "vmx_data": {
         "cpuid.coresPerSocket": "1",
         "memsize": "{{ user `memory` }}",
@@ -68,7 +68,7 @@
       "ssh_password": "vagrant",
       "ssh_username": "vagrant",
       "ssh_wait_timeout": "10000s",
-      "vm_name": "{{ user `template` }}"
+      "vm_name": "{{ user `boxtype` }}-{{user `flavor`}}"
     }
   ],
   "provisioners": [

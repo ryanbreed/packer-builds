@@ -2,7 +2,7 @@
   "builders": [
     {
       "type":"vmware-vmx",
-      "source_path": "builds/vmware-vmx-base-centos/breed-base-centos.vmx",
+      "source_path": "builds/vmware-vmx-centos-base/centos-base.vmx",
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
       "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
@@ -20,8 +20,8 @@
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
       "iso_checksum_type": "md5",
-      "iso_checksum_url": "http://ninja/export/images/breed-base-centos.md5",
-      "iso_url": "http://ninja/export/images/breed-base-centos",
+      "iso_checksum_url": "http://ninja/export/images/centos-base.md5",
+      "iso_url": "http://ninja/export/images/centos-base",
       "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
       "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
       "ssh_port": 22,
@@ -39,7 +39,9 @@
         "rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org",
         "rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm",
         "yum -y remove clang* kernel-headers*",
-        "yum -y --enablerepo=elrepo-kernel install kernel-ml kernel-ml-headers kernel-ml-devel kernel-ml-tools kernel-ml-doc kernel-ml-tools kernel-ml-tools-libs kernel-ml-tools-libs-devel perf python-perf"
+        "yum -y --enablerepo=elrepo-kernel install kernel-ml kernel-ml-headers kernel-ml-devel kernel-ml-tools kernel-ml-doc kernel-ml-tools kernel-ml-tools-libs kernel-ml-tools-libs-devel perf python-perf",
+        "grub2-editenv /boot/grub2/grubenv unset saved_entry",
+        "sed -i -e 's/GRUB_DEFAULT=.*/GRUB_DEFAULT=0/' /etc/default/grub && grub2-mkconfig -o /boot/grub2/grub.cfg"
 
       ]
     }

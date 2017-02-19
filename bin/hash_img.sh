@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 HASH_ALGO="md5"
 IMG_PATH=$1
 IMG_NAME="$(basename $IMG_PATH)"

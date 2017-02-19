@@ -2,7 +2,7 @@
   "builders": [
     {
       "type":"vmware-vmx",
-      "source_path": "builds/vmware-vmx-centos-base/centos-base.vmx",
+      "source_path": "{{user `vmware_source_dir`}}/centos-base.vmx",
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
       "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
@@ -82,6 +82,7 @@
     "disk_size": "10240",
     "headless": "true",
     "memory": "1024",
+    "vmware_source_dir":"builds/packer-vmware-iso-centos-base",
     "metadata": "floppy/dummy_metadata.json",
     "version": "0.2.0"
   }

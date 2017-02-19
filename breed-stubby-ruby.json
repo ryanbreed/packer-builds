@@ -73,6 +73,7 @@
     "disk_size": "10240",
     "headless": "true",
     "memory": "1024",
+    "vmware_source_dir":"builds/packer-vmware-iso-centos-base",
     "metadata": "floppy/dummy_metadata.json",
     "version": "0.2.0"
   }

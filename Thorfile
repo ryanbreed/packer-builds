@@ -10,6 +10,16 @@ class Packer < Thor
     def target_os
       RbConfig::CONFIG["target_os"].gsub(/\d+/,'').downcase
     end
+    def only_target(base_build: false)
+      case target_os
+      when /darwin/
+        base_build ? "vmware-iso" : "vmware-vmx"
+      when /linux/
+        "qemu"
+      else
+        "virtualbox-iso"
+      end
+    end
   end
   desc 'validate', "Validate all the packer templates"
   def validate
@@ -34,36 +44,21 @@ class Packer < Thor
     end
   end
 
-  desc 'base', "build base box"
-  option :template, default: 'breed-base-*.json'
-  option :error, default: 'cleanup'
+  desc 'base', "Execute base builds"
   def base
-    only=case target_os
-    when /darwin/
-      "vmware-iso"
-    when /linux/
-      "qemu"
-    else
-      "virtualbox-iso"
-    end
-    templates = Dir.glob(options[:template])
+    templates=Dir.glob("*-base.json")
+    only=only_target(base_build: true)
     templates.each do |t|
-      system "packer build -on-error=#{options[:error]} -only=#{only} #{t}"
+      system "packer build -on-error=cleanup -only=#{only} #{t}"
     end
   end
 
-  desc 'build', "Execute the packer builder"
-  option :only, :banner => "<only>"
+  desc 'build', "Execute the secondary builds"
   def build
-    templates = Dir.glob("*.json")
-    if options[:only]
-      templates.each do |template|
-        system "packer build -only=#{options[:only]} #{template}"
-      end
-    else
-      templates.each do |template|
-        system "packer build #{template}"
-      end
+    templates = Dir.glob("*.json").reject {|t| t.match(/base/)}
+    only=only_target(base_build: false)
+    templates.each do |template|
+      system "packer build -on-error=cleanup -only=#{only} #{template}"
     end
   end
 

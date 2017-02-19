@@ -1,0 +1,15 @@
+---
+- hosts: all
+  name: stub runtime for php
+  vars: 
+    php_package: none
+    php_version: none
+    php_install_prefix: /app/php/none
+  tasks:
+    - name: ensure app base
+      file: path={{item}} state=directory mode=0755 owner=root group=root mode=0755
+      with_items:
+        - /app
+        - /app/php
+    - name: install app-php user
+      user: name=app-php home="/app/php/home" shell="/bin/bash" createhome=True skeleton=/etc/skel

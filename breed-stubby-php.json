@@ -8,8 +8,8 @@
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
       "iso_checksum_type": "md5",
-      "iso_checksum_url": "http://ninja/export/images/breed-base-centos.md5",
-      "iso_url": "http://ninja/export/images/breed-base-centos",
+      "iso_checksum_url": "http://ninja/export/images/centos-base.md5",
+      "iso_url": "http://ninja/export/images/centos-base",
       "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p",
       "ssh_port": 22,
       "ssh_username": "vagrant",
@@ -22,7 +22,7 @@
   "provisioners": [
     {
       "type": "ansible",
-      "playbook_file":"./ansible/php.yml",
+      "playbook_file":"./ansible/pb_php.yml",
       "pause_before":"10s"
     }
   ],

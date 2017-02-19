@@ -1,0 +1,62 @@
+- name: install required base packages
+  dnf: name={{item}} state=latest
+  with_items:
+    - audit
+    - audispd-plugins
+    - authconfig
+    - bzip2
+    - clang
+    - clang-analyzer
+    - clang-devel
+    - cloud-utils
+    - cpp
+    - deltarpm
+    - euca2ools
+    - gcc
+    - kernel-devel
+    - kernel-headers
+    - lldb
+    - lldb-devel
+    - llvm
+    - llvm-devel
+    - llvm-libs
+    - make
+    - nfs-utils
+    - ntp
+    - openssh-clients
+    - perl
+    - unzip
+    - vim-minimal
+    - xz
+    - ruby
+    - grub2-tools
+    - gdisk
+    - kpartx
+    - parted
+    - python2-pip
+    - python-virtualenv
+    - NetworkManager
+
+- name: remove unnecessary packages
+  dnf: name={{item}} state=removed
+  with_items:
+    -alsa-firmware
+    -alsa-lib
+    -alsa-tools-firmware
+    -fprintd-pam
+    -irqbalance
+    -tuned
+    -intltool
+    -java-1.6.0-openjdk
+    -java-1.7.0-openjdk
+    -java-1.8.0-openjdk
+    -lldpad
+    -chrony
+
+- name: Install VMWare Guest Tools
+  dnf: name=open-vm-tools state=installed
+  when: hvm_vmware is defined and hvm_vmware
+
+- name: Install QEMU Guest Agent
+  dnf: name=qemu-guest-agent state=installed
+  when: hvm_qemu is defined and hvm_qemu

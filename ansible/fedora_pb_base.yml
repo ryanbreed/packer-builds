@@ -7,3 +7,5 @@
     audit_write_local: no
     audit_log_format: ENRICHED
     audit_dispatch_q_depth: 20000
+  tasks:
+    - include: task_test_environment.yml

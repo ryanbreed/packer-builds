@@ -33,6 +33,7 @@
     - gdisk
     - kpartx
     - parted
+    - python2-dnf
     - python2-pip
     - python-virtualenv
     - NetworkManager

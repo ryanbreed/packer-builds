@@ -9,3 +9,4 @@
     audit_dispatch_q_depth: 20000
   tasks:
     - include: task_test_environment.yml
+    - include: fedora_task_packages.yml

@@ -42,7 +42,7 @@
       "ssh_username": "vagrant",
       "ssh_wait_timeout": "10000s",
       "tools_upload_flavor": "linux",
-      "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
+      "output_directory": "{{user `dest_work`}}/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
       "vm_name": "{{ user `boxtype` }}-{{user `flavor`}}",
       "vmx_data": {
         "cpuid.coresPerSocket": "1",
@@ -67,7 +67,7 @@
       "ssh_password": "vagrant",
       "ssh_username": "vagrant",
       "ssh_wait_timeout": "10000s",
-      "output_directory": "builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
+      "output_directory": "{{user `dest_work`}}/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}",
       "vm_name": "{{ user `boxtype` }}-{{user `flavor`}}"
     }
   ],
@@ -138,7 +138,7 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "{{user `box_dest`}}/packer_{{.Provider}}-{{user `boxtype`}}-{{user `flavor`}}.box",
+      "output": "{{user `dest_boxes`}}/packer_{{.Provider}}-{{user `boxtype`}}-{{user `flavor`}}.box",
       "vagrantfile_template":"vagrantfile_templates/centos-7.3.rb",
       "keep_input_artifact": true
 
@@ -147,16 +147,16 @@
       "type":"shell-local",
       "only":["qemu"],
       "inline":[
-        "cp -vf builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}/{{user `boxtype`}}-{{user `flavor`}} {{user `image_dest`}}",
-        "bin/hash_img.sh {{user `image_dest`}}/{{user `boxtype`}}-{{user `flavor`}}",
-        "bin/hash_img.sh {{user `box_dest`}}/packer_libvirt-{{user `boxtype`}}-{{user `flavor`}}.box"
+        "cp -vf builds/packer-{{build_type}}-{{user `boxtype`}}-{{user `flavor`}}/{{user `boxtype`}}-{{user `flavor`}} {{user `dest_images`}}",
+        "bin/hash_img.sh {{user `dest_images`}}/{{user `boxtype`}}-{{user `flavor`}}",
+        "bin/hash_img.sh {{user `dest_boxes`}}/packer_libvirt-{{user `boxtype`}}-{{user `flavor`}}.box"
       ]
     },
     {
       "type":"shell-local",
       "only":["vmware-iso"],
       "inline":[
-        "bin/hash_img.sh {{user `box_dest`}}/packer_vmware-{{user `boxtype`}}-{{user `flavor`}}.box"
+        "bin/hash_img.sh {{user `dest_boxes`}}/packer_vmware-{{user `boxtype`}}-{{user `flavor`}}.box"
       ]
     }
   ],
@@ -165,8 +165,6 @@
     "version": "0.3.0",
     "boxtype": "centos",
     "flavor": "base",
-    "box_dest": "/data/export/boxes",
-    "image_dest": "/data/export/images",
     "cpus": "2",
     "disk_size": "10240",
     "git_revision": "0.1.0",

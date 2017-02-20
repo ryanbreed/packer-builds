@@ -1,42 +1,31 @@
 - name: install required base packages
   dnf: name={{item}} state=latest
   with_items:
-    - audit
-    - audispd-plugins
-    - authconfig
-    - bzip2
-    - clang
-    - clang-analyzer
-    - clang-devel
-    - cloud-utils
     - cpp
-    - deltarpm
-    - euca2ools
     - gcc
+    - gcc-c++
     - kernel-devel
     - kernel-headers
+    - clang
+    - clang-devel
+    - clang-libs
     - lldb
     - lldb-devel
     - llvm
     - llvm-devel
     - llvm-libs
+    - cmake
     - make
     - nfs-utils
     - ntp
     - openssh-clients
     - perl
     - unzip
-    - vim-minimal
-    - xz
-    - ruby
-    - grub2-tools
     - gdisk
     - kpartx
     - parted
     - python2-dnf
     - python2-pip
-    - python-virtualenv
-    - NetworkManager
 
 - name: remove unnecessary packages
   dnf: name={{item}} state=removed

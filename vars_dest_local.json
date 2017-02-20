@@ -1,0 +1,5 @@
+{
+  "dest_work":  "builds/work"
+  "dest_boxes": "builds/export/boxes",
+  "dest_images": "builds/export/images"
+}

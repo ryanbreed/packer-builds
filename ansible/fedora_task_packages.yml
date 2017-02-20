@@ -1,11 +1,21 @@
 - name: install required base packages
   dnf: name={{item}} state=latest
   with_items:
+    - bison
     - cpp
+    - cmake
+    - elfutils-libelf-devel
+    - ethtool
+    - flex
     - gcc
     - gcc-c++
+    - git
+    - iperf
     - kernel-devel
     - kernel-headers
+    - libstdc++-static
+    - luajit
+    - luajit-devel
     - clang
     - clang-devel
     - clang-libs
@@ -14,39 +24,10 @@
     - llvm
     - llvm-devel
     - llvm-libs
-    - cmake
     - make
-    - nfs-utils
-    - ntp
-    - openssh-clients
     - perl
     - unzip
-    - gdisk
-    - kpartx
-    - parted
-    - python2-dnf
-    - python2-pip
+    - python-netaddr
+    - python-pip
+    - zlib-devel
 
-- name: remove unnecessary packages
-  dnf: name={{item}} state=removed
-  with_items:
-    -alsa-firmware
-    -alsa-lib
-    -alsa-tools-firmware
-    -fprintd-pam
-    -irqbalance
-    -tuned
-    -intltool
-    -java-1.6.0-openjdk
-    -java-1.7.0-openjdk
-    -java-1.8.0-openjdk
-    -lldpad
-    -chrony
-
-- name: Install VMWare Guest Tools
-  dnf: name=open-vm-tools state=installed
-  when: hvm_vmware is defined and hvm_vmware
-
-- name: Install QEMU Guest Agent
-  dnf: name=qemu-guest-agent state=installed
-  when: hvm_qemu is defined and hvm_qemu
